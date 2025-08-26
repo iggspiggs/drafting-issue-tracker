@@ -16,14 +16,14 @@ export const issueService = {
         ),
         issue_reviews (
           id,
-          reviewerName,
+          reviewername,
           approved,
           notes,
-          reviewDate,
-          iterationNumber
+          reviewdate,
+          iterationnumber
         )
       `)
-      .order('dateReported', { ascending: false });
+      .order('datereported', { ascending: false });
     
     if (error) throw error;
     
@@ -31,15 +31,15 @@ export const issueService = {
     return data.map(issue => ({
       ...issue,
       // Database now uses camelCase consistently
-      displayId: issue.displayId || issue.id, // Use displayId for UI, fallback to id
-      dateReported: issue.dateReported,
-      resolutionDate: issue.resolutionDate,
-      uploadedBy: issue.uploadedBy,
-      lastStatusChange: issue.lastStatusChange,
-      createdAt: issue.createdAt,
-      updatedAt: issue.updatedAt,
-      createdBy: issue.createdBy,
-      jobNumber: issue.jobNumber,
+      displayId: issue.displayid || issue.id, // Use displayId for UI, fallback to id
+      dateReported: issue.datereported,
+      resolutionDate: issue.resolutiondate,
+      uploadedBy: issue.uploadedby,
+      lastStatusChange: issue.laststatuschange,
+      createdAt: issue.createdat,
+      updatedAt: issue.updatedat,
+      createdBy: issue.createdby,
+      jobNumber: issue.jobnumber,
       notes: issue.issue_notes?.map(note => ({
         id: note.id,
         content: note.content,
@@ -48,11 +48,11 @@ export const issueService = {
       })) || [],
       reviewHistory: issue.issue_reviews?.map(review => ({
         id: review.id,
-        reviewerName: review.reviewerName,
+        reviewerName: review.reviewername,
         approved: review.approved,
         notes: review.notes,
-        date: review.reviewDate,
-        iteration: review.iterationNumber
+        date: review.reviewdate,
+        iteration: review.iterationnumber
       })) || []
     }));
   },
@@ -63,17 +63,17 @@ export const issueService = {
     
     const issueToInsert = {
       // Don't pass id - let database generate UUID
-      displayId: issue.displayId || null, // Let database auto-generate if null
-      jobNumber: issue.jobNumber,
+      displayid: issue.displayId || null, // Let database auto-generate if null
+      jobnumber: issue.jobNumber,
       squad: issue.squad,
       category: issue.category,
       description: issue.description,
       status: issue.status,
-      dateReported: issue.dateReported || new Date().toISOString().split('T')[0],
-      uploadedBy: issue.uploadedBy,
-      createdBy: userData?.user?.id,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      datereported: issue.dateReported || new Date().toISOString().split('T')[0],
+      uploadedby: issue.uploadedBy,
+      createdby: userData?.user?.id,
+      createdat: new Date().toISOString(),
+      updatedat: new Date().toISOString()
     };
     
     console.log('Inserting issue:', issueToInsert); // Debug log
@@ -93,18 +93,18 @@ export const issueService = {
 
   // Update existing issue
   async update(id, updates) {
-    // Database now uses camelCase
+    // Database uses lowercase field names
     const dbUpdates = {};
-    if (updates.jobNumber !== undefined) dbUpdates.jobNumber = updates.jobNumber;
+    if (updates.jobNumber !== undefined) dbUpdates.jobnumber = updates.jobNumber;
     if (updates.squad !== undefined) dbUpdates.squad = updates.squad;
     if (updates.category !== undefined) dbUpdates.category = updates.category;
     if (updates.description !== undefined) dbUpdates.description = updates.description;
     if (updates.status !== undefined) dbUpdates.status = updates.status;
-    if (updates.dateReported !== undefined) dbUpdates.dateReported = updates.dateReported;
-    if (updates.resolutionDate !== undefined) dbUpdates.resolutionDate = updates.resolutionDate;
-    if (updates.uploadedBy !== undefined) dbUpdates.uploadedBy = updates.uploadedBy;
+    if (updates.dateReported !== undefined) dbUpdates.datereported = updates.dateReported;
+    if (updates.resolutionDate !== undefined) dbUpdates.resolutiondate = updates.resolutionDate;
+    if (updates.uploadedBy !== undefined) dbUpdates.uploadedby = updates.uploadedBy;
     
-    dbUpdates.updatedAt = new Date().toISOString();
+    dbUpdates.updatedat = new Date().toISOString();
     
     const { data, error } = await supabase
       .from('issues')
@@ -157,11 +157,11 @@ export const issueService = {
     const { data, error } = await supabase
       .from('issue_notes')
       .insert([{
-        issueId: issueId,
+        issueid: issueId,
         content: note.content,
         author: note.author,
         timestamp: new Date().toISOString(),
-        createdBy: userData?.user?.id
+        createdby: userData?.user?.id
       }])
       .select()
       .single();
@@ -177,13 +177,13 @@ export const issueService = {
     const { data, error } = await supabase
       .from('issue_reviews')
       .insert([{
-        issueId: issueId,
-        reviewerName: review.reviewerName,
+        issueid: issueId,
+        reviewername: review.reviewerName,
         approved: review.approved,
         notes: review.notes,
-        reviewDate: new Date().toISOString(),
-        iterationNumber: review.iteration || 1,
-        createdBy: userData?.user?.id
+        reviewdate: new Date().toISOString(),
+        iterationnumber: review.iteration || 1,
+        createdby: userData?.user?.id
       }])
       .select()
       .single();
