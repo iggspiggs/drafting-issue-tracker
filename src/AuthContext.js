@@ -7,6 +7,7 @@ const AuthContext = createContext({
   signOut: () => {},
   user: null,
   session: null,
+  loading: true,
 })
 
 export const useAuth = () => {
@@ -64,6 +65,7 @@ export const AuthProvider = ({ children }) => {
     signOut,
     user,
     session,
+    loading,
   }
 
   return (

@@ -4,9 +4,8 @@ import {
   X, CheckCircle, XCircle, Clock, RefreshCw, 
   Download, Trash2, Edit2, Save, Eye, Filter,
   ChevronDown, ChevronUp, Database, FileDown, Printer,
-  MessageSquare, AlertCircle, ChevronLeft, ChevronRight,
-  CalendarDays, List, BarChart3,
-  Users
+  MessageSquare, ChevronLeft, ChevronRight,
+  CalendarDays, List, BarChart3
 } from 'lucide-react';
 import { parseEmailContent } from './utils/emailParser';
 import { exportToCSV, exportToJSON, printIssues } from './utils/exportUtils';
@@ -44,7 +43,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
   const [compactView, setCompactView] = useState(false);
   const [viewMode, setViewMode] = useState('board'); // 'board', 'list', or 'calendar'
   const [calendarDate, setCalendarDate] = useState(new Date()); // Default to current month/year
-  const [calendarView, setCalendarView] = useState('month'); // 'month' or 'week'
+  const [calendarView] = useState('month'); // 'month' or 'week' - setCalendarView removed as unused
   const [sortBy, setSortBy] = useState('date'); // 'date', 'id'
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc' or 'desc'
   const [showKPIModal, setShowKPIModal] = useState(false);
@@ -76,6 +75,25 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
     { id: 'cannotchange', title: 'Cannot Change', status: 'Cannot Change', color: 'bg-red-500' }
   ];
 
+  // ESC key handler for closing modals
+  useEffect(() => {
+    const handleEscKey = (event) => {
+      if (event.key === 'Escape') {
+        // Close whichever modal is currently open
+        setShowAddModal(false);
+        setShowIssueModal(false);
+        setShowReviewModal(false);
+        setShowEditModal(false);
+        setShowDeleteConfirm(false);
+        setShowKPIModal(false);
+        setShowCalendarDayModal(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscKey);
+    return () => document.removeEventListener('keydown', handleEscKey);
+  }, []);
+
   // Load data from Supabase on mount
   useEffect(() => {
     const loadIssues = async () => {
@@ -83,7 +101,9 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
         const data = await issueService.getAll();
         setIssues(data || []);  // Set empty array if no data
       } catch (error) {
-        console.error('Error loading issues from Supabase:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error loading issues from Supabase:', error);
+        }
         setIssues([]);  // Set empty array on error, no sample data
       }
     };
@@ -257,7 +277,9 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
         setParsePreview(null);
         setShowAddModal(false);
       } catch (error) {
-        console.error('Error creating issues:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error creating issues:', error);
+        }
         alert('Failed to create issues. Please try again.');
       }
     }
@@ -266,6 +288,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
   // Edit issue functionality
   const handleEditIssue = (issue) => {
     setEditingIssue({ ...issue });
+    setShowIssueModal(false);  // Close the issue details modal
     setShowEditModal(true);
   };
 
@@ -283,7 +306,9 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
         setSelectedIssue(editingIssue);
       }
     } catch (error) {
-      console.error('Error updating issue:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error updating issue:', error);
+      }
       alert('Failed to update issue. Please try again.');
     }
   };
@@ -304,7 +329,9 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
         setShowIssueModal(false);
         setSelectedIssue(null);
       } catch (error) {
-        console.error('Error deleting issue:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error deleting issue:', error);
+        }
         alert('Failed to delete issue. Please try again.');
       }
     }
@@ -1494,7 +1521,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
               <p className="text-gray-600 mt-1">Paste email content to automatically extract and categorize issues</p>
             </div>
             <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Job Number (optional)

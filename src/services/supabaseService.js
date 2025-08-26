@@ -23,22 +23,23 @@ export const issueService = {
           iterationnumber
         )
       `)
-      .order('datereported', { ascending: false });
+      .order('dateReported', { ascending: false });
     
     if (error) throw error;
     
     // Transform data to match app format
     return data.map(issue => ({
       ...issue,
-      // Convert snake_case to camelCase for the app
-      dateReported: issue.datereported,
-      resolutionDate: issue.resolutiondate,
-      uploadedBy: issue.uploadedby,
-      lastStatusChange: issue.laststatuschange,
-      createdAt: issue.createdat,
-      updatedAt: issue.updatedat,
-      createdBy: issue.createdby,
-      jobNumber: issue.jobnumber,
+      // Database now uses camelCase consistently
+      displayId: issue.displayId || issue.id, // Use displayId for UI, fallback to id
+      dateReported: issue.dateReported,
+      resolutionDate: issue.resolutionDate,
+      uploadedBy: issue.uploadedBy,
+      lastStatusChange: issue.lastStatusChange,
+      createdAt: issue.createdAt,
+      updatedAt: issue.updatedAt,
+      createdBy: issue.createdBy,
+      jobNumber: issue.jobNumber,
       notes: issue.issue_notes?.map(note => ({
         id: note.id,
         content: note.content,
@@ -47,11 +48,11 @@ export const issueService = {
       })) || [],
       reviewHistory: issue.issue_reviews?.map(review => ({
         id: review.id,
-        reviewerName: review.reviewername,
+        reviewerName: review.reviewerName,
         approved: review.approved,
         notes: review.notes,
-        date: review.reviewdate,
-        iteration: review.iterationnumber
+        date: review.reviewDate,
+        iteration: review.iterationNumber
       })) || []
     }));
   },
@@ -64,16 +65,17 @@ export const issueService = {
       .from('issues')
       .insert([{
         id: issue.id,
-        jobnumber: issue.jobNumber,
+        displayId: issue.displayId, // Let database auto-generate if null
+        jobNumber: issue.jobNumber,
         squad: issue.squad,
         category: issue.category,
         description: issue.description,
         status: issue.status,
-        datereported: issue.dateReported || new Date().toISOString().split('T')[0],
-        uploadedby: issue.uploadedBy,
-        createdby: userData?.user?.id,
-        createdat: new Date().toISOString(),
-        updatedat: new Date().toISOString()
+        dateReported: issue.dateReported || new Date().toISOString().split('T')[0],
+        uploadedBy: issue.uploadedBy,
+        createdBy: userData?.user?.id,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       }])
       .select()
       .single();
@@ -84,18 +86,18 @@ export const issueService = {
 
   // Update existing issue
   async update(id, updates) {
-    // Convert camelCase to snake_case for database
+    // Database now uses camelCase
     const dbUpdates = {};
-    if (updates.jobNumber !== undefined) dbUpdates.jobnumber = updates.jobNumber;
+    if (updates.jobNumber !== undefined) dbUpdates.jobNumber = updates.jobNumber;
     if (updates.squad !== undefined) dbUpdates.squad = updates.squad;
     if (updates.category !== undefined) dbUpdates.category = updates.category;
     if (updates.description !== undefined) dbUpdates.description = updates.description;
     if (updates.status !== undefined) dbUpdates.status = updates.status;
-    if (updates.dateReported !== undefined) dbUpdates.datereported = updates.dateReported;
-    if (updates.resolutionDate !== undefined) dbUpdates.resolutiondate = updates.resolutionDate;
-    if (updates.uploadedBy !== undefined) dbUpdates.uploadedby = updates.uploadedBy;
+    if (updates.dateReported !== undefined) dbUpdates.dateReported = updates.dateReported;
+    if (updates.resolutionDate !== undefined) dbUpdates.resolutionDate = updates.resolutionDate;
+    if (updates.uploadedBy !== undefined) dbUpdates.uploadedBy = updates.uploadedBy;
     
-    dbUpdates.updatedat = new Date().toISOString();
+    dbUpdates.updatedAt = new Date().toISOString();
     
     const { data, error } = await supabase
       .from('issues')

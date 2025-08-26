@@ -9,7 +9,8 @@ DROP TABLE IF EXISTS issues CASCADE;
 
 -- Issues table with CORRECTED field names (camelCase to match app)
 CREATE TABLE issues (
-  id TEXT PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  displayId TEXT UNIQUE NOT NULL, -- Human-readable ID like ERE-001
   jobNumber TEXT,                    -- FIXED: was job_number
   squad TEXT,
   category TEXT NOT NULL,
@@ -34,10 +35,58 @@ ALTER TABLE issues ADD CONSTRAINT check_category
 ALTER TABLE issues ADD CONSTRAINT check_status 
   CHECK (status IN ('New', 'In Progress', 'Under Review', 'Needs Rework', 'Fixed', 'Cannot Change'));
 
+-- Create sequences for generating display IDs by category
+CREATE SEQUENCE seq_erection_drawings START 1;
+CREATE SEQUENCE seq_shipper START 1;
+CREATE SEQUENCE seq_shop_drawings START 1;
+
+-- Function to generate display ID based on category
+CREATE OR REPLACE FUNCTION generate_display_id(category_name TEXT)
+RETURNS TEXT AS $$
+DECLARE
+    prefix TEXT;
+    seq_val INTEGER;
+BEGIN
+    CASE category_name
+        WHEN 'Erection Drawings' THEN 
+            prefix := 'ERE';
+            seq_val := nextval('seq_erection_drawings');
+        WHEN 'Shipper' THEN 
+            prefix := 'SHP';
+            seq_val := nextval('seq_shipper');
+        WHEN 'Shop Drawings' THEN 
+            prefix := 'SHD';
+            seq_val := nextval('seq_shop_drawings');
+        ELSE 
+            prefix := 'ISS';
+            seq_val := nextval('seq_erection_drawings'); -- Default to erection sequence
+    END CASE;
+    
+    RETURN prefix || '-' || LPAD(seq_val::TEXT, 3, '0');
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to auto-generate display ID on insert
+CREATE OR REPLACE FUNCTION auto_generate_display_id()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.displayId IS NULL OR NEW.displayId = '' THEN
+        NEW.displayId := generate_display_id(NEW.category);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger to auto-generate display ID
+CREATE TRIGGER trigger_auto_display_id
+    BEFORE INSERT ON issues
+    FOR EACH ROW
+    EXECUTE FUNCTION auto_generate_display_id();
+
 -- Issue notes table with CORRECTED field names
 CREATE TABLE issue_notes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  issueId TEXT NOT NULL REFERENCES issues(id) ON DELETE CASCADE,  -- FIXED: was issue_id
+  issueId UUID NOT NULL REFERENCES issues(id) ON DELETE CASCADE,  -- FIXED: was issue_id
   content TEXT NOT NULL,
   author TEXT NOT NULL,
   timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -47,7 +96,7 @@ CREATE TABLE issue_notes (
 -- Review history table with CORRECTED field names
 CREATE TABLE issue_reviews (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  issueId TEXT NOT NULL REFERENCES issues(id) ON DELETE CASCADE,  -- FIXED: was issue_id
+  issueId UUID NOT NULL REFERENCES issues(id) ON DELETE CASCADE,  -- FIXED: was issue_id
   reviewerName TEXT NOT NULL,                                      -- FIXED: was reviewer_name
   approved BOOLEAN NOT NULL,
   notes TEXT,
@@ -59,7 +108,7 @@ CREATE TABLE issue_reviews (
 -- Status change history table with CORRECTED field names
 CREATE TABLE issue_status_history (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  issueId TEXT NOT NULL REFERENCES issues(id) ON DELETE CASCADE,  -- FIXED: was issue_id
+  issueId UUID NOT NULL REFERENCES issues(id) ON DELETE CASCADE,  -- FIXED: was issue_id
   oldStatus TEXT,                                                  -- FIXED: was old_status
   newStatus TEXT NOT NULL,                                         -- FIXED: was new_status
   changedBy TEXT,                                                  -- FIXED: was changed_by
@@ -69,6 +118,7 @@ CREATE TABLE issue_status_history (
 );
 
 -- Create indexes for better performance (with corrected field names)
+CREATE INDEX idx_issues_displayId ON issues(displayId);
 CREATE INDEX idx_issues_jobNumber ON issues(jobNumber);           -- FIXED: was job_number
 CREATE INDEX idx_issues_status ON issues(status);
 CREATE INDEX idx_issues_squad ON issues(squad);

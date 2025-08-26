@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from './AuthContext'
+import { Eye, EyeOff } from 'lucide-react'
 
 const Auth = () => {
   const [loading, setLoading] = useState(false)
@@ -7,6 +8,7 @@ const Auth = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const { signUp, signIn } = useAuth()
 
   const handleLogin = async (e) => {
@@ -40,7 +42,7 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div>
+        <div className="mb-12">
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             {isSignUp ? 'Create your account' : 'Sign in to your account'}
           </h2>
@@ -48,8 +50,8 @@ const Auth = () => {
             Drafting Issue Tracker
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          <div className="rounded-md shadow-sm -space-y-px">
+        <form className="space-y-6" onSubmit={handleLogin} style={{ marginTop: '40px' }}>
+          <div className="rounded-md shadow-sm space-y-2">
             <div>
               <label htmlFor="email-address" className="sr-only">
                 Email address
@@ -66,21 +68,40 @@ const Auth = () => {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            <div>
+            <div className="relative">
               <label htmlFor="password" className="sr-only">
                 Password
               </label>
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
                 required
-                className="relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              <button
+                type="button"
+                className="absolute flex items-center justify-center"
+                style={{ 
+                  top: '70%', 
+                  right: '12px', 
+                  transform: 'translateY(-50%)',
+                  zIndex: 10,
+                  backgroundColor: 'transparent',
+                  border: 'none'
+                }}
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                ) : (
+                  <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                )}
+              </button>
             </div>
           </div>
 
