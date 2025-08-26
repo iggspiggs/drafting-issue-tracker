@@ -61,26 +61,33 @@ export const issueService = {
   async create(issue) {
     const { data: userData } = await supabase.auth.getUser();
     
+    const issueToInsert = {
+      // Don't pass id - let database generate UUID
+      displayId: issue.displayId || null, // Let database auto-generate if null
+      jobNumber: issue.jobNumber,
+      squad: issue.squad,
+      category: issue.category,
+      description: issue.description,
+      status: issue.status,
+      dateReported: issue.dateReported || new Date().toISOString().split('T')[0],
+      uploadedBy: issue.uploadedBy,
+      createdBy: userData?.user?.id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    console.log('Inserting issue:', issueToInsert); // Debug log
+    
     const { data, error } = await supabase
       .from('issues')
-      .insert([{
-        id: issue.id,
-        displayId: issue.displayId, // Let database auto-generate if null
-        jobNumber: issue.jobNumber,
-        squad: issue.squad,
-        category: issue.category,
-        description: issue.description,
-        status: issue.status,
-        dateReported: issue.dateReported || new Date().toISOString().split('T')[0],
-        uploadedBy: issue.uploadedBy,
-        createdBy: userData?.user?.id,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }])
+      .insert([issueToInsert])
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase create error:', error);
+      throw error;
+    }
     return data;
   },
 

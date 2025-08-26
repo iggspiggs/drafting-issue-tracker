@@ -272,6 +272,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
       try {
         // Create issues in Supabase
         for (const issue of parsePreview.issues) {
+          console.log('Creating issue:', issue); // Debug log
           await issueService.create(issue);
         }
         
