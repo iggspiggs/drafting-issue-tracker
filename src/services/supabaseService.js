@@ -16,11 +16,11 @@ export const issueService = {
         ),
         issue_reviews (
           id,
-          reviewername,
+          reviewerName,
           approved,
           notes,
-          reviewdate,
-          iterationnumber
+          reviewDate,
+          iterationNumber
         )
       `)
       .order('dateReported', { ascending: false });
@@ -157,11 +157,11 @@ export const issueService = {
     const { data, error } = await supabase
       .from('issue_notes')
       .insert([{
-        issueid: issueId,
+        issueId: issueId,
         content: note.content,
         author: note.author,
         timestamp: new Date().toISOString(),
-        createdby: userData?.user?.id
+        createdBy: userData?.user?.id
       }])
       .select()
       .single();
@@ -177,13 +177,13 @@ export const issueService = {
     const { data, error } = await supabase
       .from('issue_reviews')
       .insert([{
-        issueid: issueId,
-        reviewername: review.reviewerName,
+        issueId: issueId,
+        reviewerName: review.reviewerName,
         approved: review.approved,
         notes: review.notes,
-        reviewdate: new Date().toISOString(),
-        iterationnumber: review.iteration || 1,
-        createdby: userData?.user?.id
+        reviewDate: new Date().toISOString(),
+        iterationNumber: review.iteration || 1,
+        createdBy: userData?.user?.id
       }])
       .select()
       .single();
