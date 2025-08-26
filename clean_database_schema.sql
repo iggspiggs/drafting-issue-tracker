@@ -7,6 +7,17 @@ DROP TABLE IF EXISTS issue_notes CASCADE;
 DROP TABLE IF EXISTS issue_reviews CASCADE;
 DROP TABLE IF EXISTS issues CASCADE;
 
+-- Drop sequences if they exist
+DROP SEQUENCE IF EXISTS seq_erection_drawings CASCADE;
+DROP SEQUENCE IF EXISTS seq_shipper CASCADE;
+DROP SEQUENCE IF EXISTS seq_shop_drawings CASCADE;
+
+-- Drop functions if they exist
+DROP FUNCTION IF EXISTS generate_display_id(TEXT) CASCADE;
+DROP FUNCTION IF EXISTS auto_generate_display_id() CASCADE;
+DROP FUNCTION IF EXISTS update_updatedAt_column() CASCADE;
+DROP FUNCTION IF EXISTS track_status_change() CASCADE;
+
 -- Issues table with CORRECTED field names (camelCase to match app)
 CREATE TABLE issues (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
