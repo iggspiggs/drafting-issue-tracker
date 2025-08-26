@@ -145,6 +145,7 @@ export const issueService = {
     if (updates.dateReported !== undefined) dbUpdates.datereported = updates.dateReported;
     if (updates.resolutionDate !== undefined) dbUpdates.resolutiondate = updates.resolutionDate;
     if (updates.uploadedBy !== undefined) dbUpdates.uploadedby = updates.uploadedBy;
+    if (updates.lastStatusChange !== undefined) dbUpdates.laststatuschange = updates.lastStatusChange;
     
     dbUpdates.updatedat = new Date().toISOString();
     

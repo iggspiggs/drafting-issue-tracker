@@ -428,6 +428,11 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
   const moveIssue = async (issueId, newStatus) => {
     try {
       const issue = issues.find(i => i.id === issueId);
+      
+      if (!issue) {
+        throw new Error('Issue not found');
+      }
+      
       const updatedIssue = {
         ...issue,
         status: newStatus,
@@ -445,8 +450,10 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
         )
       );
     } catch (error) {
-      console.error('Error moving issue:', error);
-      alert('Failed to update issue status. Please try again.');
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error moving issue:', error);
+      }
+      alert(`Failed to update issue status: ${error.message}`);
     }
   };
 
@@ -1173,7 +1180,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
                                   onClick={(e) => e.stopPropagation()}
                                   className="w-3 h-3"
                                 />
-                                <span className="font-mono text-xs font-bold text-gray-900">{issue.id}</span>
+                                <span className="font-mono text-xs font-bold text-gray-900">{issue.displayId || issue.id}</span>
                               </div>
                               {issue.squad && (
                                 <span className="text-xs text-gray-500">{issue.squad}</span>
@@ -1202,7 +1209,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
                                 className="w-4 h-4"
                               />
                               <span className="text-lg">{getCategoryIcon(issue.category)}</span>
-                              <span className="font-mono text-sm font-bold text-gray-900">{issue.id}</span>
+                              <span className="font-mono text-sm font-bold text-gray-900">{issue.displayId || issue.id}</span>
                             </div>
                             <div className="flex gap-1">
                               <button
@@ -1373,7 +1380,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
                         onChange={() => toggleIssueSelection(issue.id)}
                       />
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-blue-600">{issue.id}</td>
+                    <td className="px-4 py-3 text-sm font-medium text-blue-600">{issue.displayId || issue.id}</td>
                     <td className="px-4 py-3 text-sm">{issue.jobNumber}</td>
                     <td className="px-4 py-3 text-sm">{issue.squad || '-'}</td>
                     <td className="px-4 py-3 text-sm">
@@ -1611,7 +1618,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
                   <div className="space-y-2 max-h-40 overflow-y-auto">
                     {parsePreview.issues.map((issue, idx) => (
                       <div key={idx} className="flex items-center gap-2 text-sm p-2 bg-gray-50 rounded">
-                        <span className="font-mono text-blue-600">{issue.id}</span>
+                        <span className="font-mono text-blue-600">{issue.displayId || issue.id}</span>
                         <span className="text-gray-600">|</span>
                         <span className="flex-1 truncate">{issue.description}</span>
                       </div>
@@ -1658,7 +1665,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Edit Issue {editingIssue.id}</h2>
+              <h2 className="text-xl font-bold text-gray-900">Edit Issue {editingIssue.displayId || editingIssue.id}</h2>
             </div>
             <div className="p-6 space-y-4">
               <div>
@@ -1769,7 +1776,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{getCategoryIcon(selectedIssue.category)}</span>
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900">{selectedIssue.id}</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{selectedIssue.displayId || selectedIssue.id}</h2>
                     <p className="text-gray-600">Job #{selectedIssue.jobNumber} • {selectedIssue.category}</p>
                   </div>
                 </div>
@@ -2040,7 +2047,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
                     <tbody>
                       {getKPIFilteredIssues().map((issue, index) => (
                         <tr key={issue.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                          <td className="border border-gray-300 px-4 py-3 text-sm font-mono text-blue-600">{issue.id}</td>
+                          <td className="border border-gray-300 px-4 py-3 text-sm font-mono text-blue-600">{issue.displayId || issue.id}</td>
                           <td className="border border-gray-300 px-4 py-3 text-sm max-w-xs truncate">{issue.description}</td>
                           <td className="border border-gray-300 px-4 py-3 text-sm">
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -2183,7 +2190,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
                               {statusIssues.map((issue) => (
                                 <div key={issue.id} className="px-4 py-3 hover:bg-gray-50 flex items-start justify-between gap-4">
                                   <div className="flex-1 min-w-0">
-                                    <div className="font-medium text-blue-600">{issue.id}</div>
+                                    <div className="font-medium text-blue-600">{issue.displayId || issue.id}</div>
                                     <div className="text-sm text-gray-600 mt-1 break-words">
                                       {issue.description}
                                     </div>
