@@ -270,14 +270,11 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
   const confirmParsedIssues = async () => {
     if (parsePreview && parsePreview.issues.length > 0) {
       try {
-        // Create issues in Supabase
-        for (const issue of parsePreview.issues) {
-          console.log('Creating issue:', issue); // Debug log
-          await issueService.create(issue);
-        }
+        // Create all issues in a single batch
+        const createdIssues = await issueService.createBatch(parsePreview.issues);
         
-        // Add issues to local state
-        setIssues(prevIssues => [...prevIssues, ...parsePreview.issues]);
+        // Add issues to local state with the returned IDs from database
+        setIssues(prevIssues => [...prevIssues, ...createdIssues]);
         setEmailContent('');
         setSelectedJob('');
         setParsePreview(null);

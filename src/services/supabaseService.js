@@ -57,6 +57,53 @@ export const issueService = {
     }));
   },
 
+  // Create multiple issues in a batch
+  async createBatch(issues) {
+    const { data: userData } = await supabase.auth.getUser();
+    
+    // Prepare all issues for batch insert
+    const issuesToInsert = issues.map(issue => ({
+      displayid: issue.displayId || null,
+      jobnumber: issue.jobNumber,
+      squad: issue.squad,
+      category: issue.category,
+      description: issue.description,
+      status: issue.status,
+      datereported: issue.dateReported || new Date().toISOString().split('T')[0],
+      uploadedby: issue.uploadedBy,
+      createdby: userData?.user?.id,
+      createdat: new Date().toISOString(),
+      updatedat: new Date().toISOString()
+    }));
+    
+    const { data, error } = await supabase
+      .from('issues')
+      .insert(issuesToInsert)
+      .select();
+    
+    if (error) {
+      console.error('Supabase batch create error:', error);
+      throw error;
+    }
+    
+    // Transform returned data to match app format
+    return data.map(issue => ({
+      ...issue,
+      id: issue.id,
+      displayId: issue.displayid,
+      dateReported: issue.datereported,
+      resolutionDate: issue.resolutiondate,
+      uploadedBy: issue.uploadedby,
+      lastStatusChange: issue.laststatuschange,
+      createdAt: issue.createdat,
+      updatedAt: issue.updatedat,
+      createdBy: issue.createdby,
+      jobNumber: issue.jobnumber,
+      notes: [],
+      reviewHistory: []
+    }));
+  },
+
   // Create new issue
   async create(issue) {
     const { data: userData } = await supabase.auth.getUser();
@@ -76,18 +123,13 @@ export const issueService = {
       updatedat: new Date().toISOString()
     };
     
-    console.log('Inserting issue:', issueToInsert); // Debug log
-    
     const { data, error } = await supabase
       .from('issues')
       .insert([issueToInsert])
       .select()
       .single();
     
-    if (error) {
-      console.error('Supabase create error:', error);
-      throw error;
-    }
+    if (error) throw error;
     return data;
   },
 
