@@ -267,10 +267,15 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
     setParsePreview({ ...result, issues: issuesWithMetadata });
   };
 
-  const confirmParsedIssues = () => {
+  const confirmParsedIssues = async () => {
     if (parsePreview && parsePreview.issues.length > 0) {
       try {
-        // Add issues to local state (localStorage auto-save will handle persistence)
+        // Create issues in Supabase
+        for (const issue of parsePreview.issues) {
+          await issueService.create(issue);
+        }
+        
+        // Add issues to local state
         setIssues(prevIssues => [...prevIssues, ...parsePreview.issues]);
         setEmailContent('');
         setSelectedJob('');
@@ -292,9 +297,12 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
     setShowEditModal(true);
   };
 
-  const saveEditedIssue = () => {
+  const saveEditedIssue = async () => {
     try {
-      // Update issue in local state (localStorage auto-save will handle persistence)
+      // Update issue in Supabase
+      await issueService.update(editingIssue.id, editingIssue);
+      
+      // Update local state
       setIssues(prevIssues =>
         prevIssues.map(issue =>
           issue.id === editingIssue.id ? editingIssue : issue
@@ -319,10 +327,13 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
     setShowDeleteConfirm(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (issueToDelete) {
       try {
-        // Remove issue from local state (localStorage auto-save will handle persistence)
+        // Delete issue from Supabase
+        await issueService.delete(issueToDelete.id);
+        
+        // Remove issue from local state
         setIssues(prevIssues => prevIssues.filter(issue => issue.id !== issueToDelete.id));
         setShowDeleteConfirm(false);
         setIssueToDelete(null);
@@ -387,7 +398,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
   };
 
   // Move issue
-  const moveIssue = (issueId, newStatus) => {
+  const moveIssue = async (issueId, newStatus) => {
     try {
       const issue = issues.find(i => i.id === issueId);
       const updatedIssue = {
@@ -397,7 +408,10 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
         lastStatusChange: new Date().toISOString()
       };
       
-      // Update issue in local state (localStorage auto-save will handle persistence)
+      // Update issue in Supabase
+      await issueService.update(issueId, updatedIssue);
+      
+      // Update issue in local state
       setIssues(prevIssues =>
         prevIssues.map(issue =>
           issue.id === issueId ? updatedIssue : issue
