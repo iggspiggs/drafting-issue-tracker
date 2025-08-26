@@ -9,9 +9,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 function AppContent() {
   const { user, signOut, loading } = useAuth();
 
-  // TEMP: Skip authentication for testing
-  const mockUser = { id: 'test-user', email: 'test@example.com' };
-  const currentUser = mockUser; // Change back to 'user' to re-enable auth
+  const currentUser = user; // Authentication re-enabled
 
   if (loading) {
     return (
@@ -26,14 +24,13 @@ function AppContent() {
     );
   }
 
-  // TEMP: Always show main app for testing
-  // if (!currentUser) {
-  //   return (
-  //     <ErrorBoundary>
-  //       <Auth />
-  //     </ErrorBoundary>
-  //   );
-  // }
+  if (!currentUser) {
+    return (
+      <ErrorBoundary>
+        <Auth />
+      </ErrorBoundary>
+    );
+  }
 
   return (
     <ErrorBoundary>
