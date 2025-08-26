@@ -1,0 +1,172 @@
+/* KPI Card Styles - Modern Dashboard Design */
+
+.kpi-card-enhanced {
+  background: linear-gradient(135deg, #3a4052 0%, #2d3142 100%);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+}
+
+.kpi-card-enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.kpi-clickable {
+  cursor: pointer;
+}
+
+.kpi-clickable:active {
+  transform: scale(0.98);
+}
+
+.kpi-card-enhanced .flex-col {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  position: relative;
+}
+
+/* KPI Icons */
+.kpi-icon-enhanced {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.kpi-icon-enhanced svg {
+  width: 24px;
+  height: 24px;
+  color: #ffffff;
+}
+
+/* Icon color variants */
+.icon-unassigned {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.icon-due {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.icon-progress {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.icon-review {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.icon-rework {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.icon-fixed {
+  background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+}
+
+/* KPI Label */
+.kpi-label {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+/* KPI Value */
+.kpi-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+/* KPI Description */
+.kpi-description {
+  font-size: 13px;
+  color: #94a3b8;
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1280px) {
+  .kpi-card-enhanced {
+    min-height: 110px;
+    padding: 16px;
+  }
+  
+  .kpi-value {
+    font-size: 28px;
+  }
+  
+  .kpi-icon-enhanced {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+@media (max-width: 768px) {
+  .kpi-card-enhanced {
+    min-height: 100px;
+    padding: 14px;
+  }
+  
+  .kpi-value {
+    font-size: 24px;
+  }
+  
+  .kpi-icon-enhanced {
+    width: 38px;
+    height: 38px;
+  }
+  
+  .kpi-icon-enhanced svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Grid layout for KPIs */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 20px;
+  padding: 24px;
+  background: #f8f9fa;
+}
+
+@media (max-width: 1536px) {
+  .kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}

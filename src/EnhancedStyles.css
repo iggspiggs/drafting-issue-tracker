@@ -1,0 +1,240 @@
+/* Enhanced styles with responsive design */
+
+/* Responsive breakpoints */
+@media (max-width: 640px) {
+  /* Mobile styles */
+  .enhanced-app .flex-wrap {
+    flex-direction: column;
+  }
+  
+  .enhanced-app .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .enhanced-app .w-80 {
+    width: 100%;
+    min-width: 280px;
+  }
+  
+  .enhanced-app .flex.gap-6 {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .enhanced-app .max-w-md {
+    max-width: 100%;
+  }
+  
+  .enhanced-app .dropdown-container {
+    position: static;
+  }
+  
+  .enhanced-app .dropdown-container > div {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+  
+  /* Hide less important columns in mobile list view */
+  .enhanced-app table th:nth-child(3),
+  .enhanced-app table td:nth-child(3),
+  .enhanced-app table th:nth-child(4),
+  .enhanced-app table td:nth-child(4),
+  .enhanced-app table th:nth-child(8),
+  .enhanced-app table td:nth-child(8) {
+    display: none;
+  }
+  
+  /* Stack filter controls vertically on mobile */
+  .enhanced-app .flex.flex-wrap.gap-3 {
+    flex-direction: column;
+  }
+  
+  .enhanced-app select,
+  .enhanced-app input {
+    width: 100%;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  /* Tablet styles */
+  .enhanced-app .w-80 {
+    width: 45%;
+    min-width: 300px;
+  }
+  
+  .enhanced-app .flex.gap-6 {
+    flex-wrap: wrap;
+  }
+}
+
+/* Dropdown animation */
+.dropdown-container > div {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Smooth transitions */
+.enhanced-app button {
+  transition: all 0.2s ease;
+}
+
+.enhanced-app .shadow-sm {
+  transition: box-shadow 0.2s ease;
+}
+
+/* Loading spinner */
+.spinner {
+  border: 2px solid #f3f4f6;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Scrollbar styles */
+.enhanced-app ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.enhanced-app ::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.enhanced-app ::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.enhanced-app ::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Print styles */
+@media print {
+  .enhanced-app .no-print {
+    display: none !important;
+  }
+  
+  .enhanced-app {
+    background: white;
+  }
+  
+  .enhanced-app .bg-gray-100 {
+    background: white;
+  }
+  
+  .enhanced-app .shadow-sm,
+  .enhanced-app .shadow-md {
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+}
+
+/* Accessibility improvements */
+.enhanced-app button:focus,
+.enhanced-app input:focus,
+.enhanced-app select:focus,
+.enhanced-app textarea:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.enhanced-app .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Drag and drop visual feedback */
+.enhanced-app .dragging {
+  opacity: 0.5;
+}
+
+.enhanced-app .drag-over {
+  background-color: #eff6ff;
+  border: 2px dashed #3b82f6;
+}
+
+/* Toast notifications (for future use) */
+.toast {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.3s ease-out;
+  z-index: 100;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.toast.success {
+  border-left: 4px solid #10b981;
+}
+
+.toast.error {
+  border-left: 4px solid #ef4444;
+}
+
+.toast.warning {
+  border-left: 4px solid #f59e0b;
+}
+
+/* Keyboard shortcuts hint */
+.kbd {
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.875rem;
+  font-family: monospace;
+  display: inline-block;
+}
+
+/* Performance optimizations */
+.enhanced-app * {
+  will-change: auto;
+}
+
+.enhanced-app .transitioning {
+  will-change: transform, opacity;
+}
