@@ -382,9 +382,14 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
     setSelectedIssues(prev => [...new Set([...prev, ...bucketIds])]);
   };
 
-  const bulkUpdateStatus = (newStatus) => {
+  const bulkUpdateStatus = async (newStatus) => {
     try {
-      // Update issues in local state (localStorage auto-save will handle persistence)
+      console.log('Bulk updating status for issues:', selectedIssues, 'to:', newStatus);
+      // Update issues in Supabase
+      await issueService.bulkUpdateStatus(selectedIssues, newStatus);
+      console.log('Bulk update successful');
+      
+      // Update issues in local state
       setIssues(prevIssues =>
         prevIssues.map(issue =>
           selectedIssues.includes(issue.id)
@@ -396,14 +401,19 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
       setShowBulkActions(false);
     } catch (error) {
       console.error('Error bulk updating issues:', error);
-      alert('Failed to update issues. Please try again.');
+      alert(`Failed to update issues: ${error.message}`);
     }
   };
 
-  const bulkDelete = () => {
+  const bulkDelete = async () => {
     if (window.confirm(`Delete ${selectedIssues.length} selected issues?`)) {
       try {
-        // Remove issues from local state (localStorage auto-save will handle persistence)
+        console.log('Bulk deleting issues:', selectedIssues);
+        // Delete issues from Supabase
+        await issueService.bulkDelete(selectedIssues);
+        console.log('Bulk delete successful');
+        
+        // Remove issues from local state
         setIssues(prevIssues =>
           prevIssues.filter(issue => !selectedIssues.includes(issue.id))
         );
@@ -411,7 +421,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
         setShowBulkActions(false);
       } catch (error) {
         console.error('Error bulk deleting issues:', error);
-        alert('Failed to delete issues. Please try again.');
+        alert(`Failed to delete issues: ${error.message}`);
       }
     }
   };

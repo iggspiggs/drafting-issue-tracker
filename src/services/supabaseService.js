@@ -201,25 +201,43 @@ export const issueService = {
 
   // Bulk delete issues
   async bulkDelete(ids) {
-    const { error } = await supabase
+    console.log('Bulk deleting issues with IDs:', ids);
+    const { data, error } = await supabase
       .from('issues')
       .delete()
-      .in('id', ids);
+      .in('id', ids)
+      .select();  // Return deleted rows to verify
     
-    if (error) throw error;
+    if (error) {
+      console.error('Bulk delete error:', error);
+      throw error;
+    }
+    
+    console.log('Bulk delete response:', data);
+    if (!data || data.length !== ids.length) {
+      console.warn(`Expected to delete ${ids.length} issues, but deleted ${data?.length || 0}`);
+    }
+    
+    console.log('Bulk delete successful');
+    return data;
   },
 
   // Bulk update status
   async bulkUpdateStatus(ids, newStatus) {
+    console.log('Bulk updating status for IDs:', ids);
     const { error } = await supabase
       .from('issues')
       .update({ 
         status: newStatus,
-        updatedAt: new Date().toISOString()
+        updatedat: new Date().toISOString()  // lowercase field name
       })
       .in('id', ids);
     
-    if (error) throw error;
+    if (error) {
+      console.error('Bulk update error:', error);
+      throw error;
+    }
+    console.log('Bulk status update successful');
   },
 
   // Add note to issue
