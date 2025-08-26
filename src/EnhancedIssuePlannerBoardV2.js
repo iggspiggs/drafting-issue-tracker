@@ -498,23 +498,29 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
   };
 
   // Add note function
-  const addNote = () => {
+  const addNote = async () => {
     if (!newNoteContent.trim() || !selectedIssue) return;
 
     try {
-      const newNote = {
-        id: Math.max(0, ...(selectedIssue.notes || []).map(n => n.id)) + 1,
+      const noteData = {
         content: newNoteContent.trim(),
-        timestamp: new Date().toISOString(),
-        author: 'Current User' // You can replace this with actual user data
+        author: user?.email || 'Unknown User'  // Use actual user email
       };
 
+      // Add note to Supabase
+      const savedNote = await issueService.addNote(selectedIssue.id, noteData);
+      
+      // Update local state with the saved note
       const updatedIssue = {
         ...selectedIssue,
-        notes: [...(selectedIssue.notes || []), newNote]
+        notes: [...(selectedIssue.notes || []), {
+          id: savedNote.id,
+          content: savedNote.content,
+          author: savedNote.author,
+          timestamp: savedNote.timestamp
+        }]
       };
 
-      // Update local state
       setIssues(prevIssues =>
         prevIssues.map(issue =>
           issue.id === selectedIssue.id ? updatedIssue : issue
@@ -525,8 +531,10 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
       setSelectedIssue(updatedIssue);
       setNewNoteContent('');
     } catch (error) {
-      console.error('Error adding note:', error);
-      alert('Failed to add note. Please try again.');
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error adding note:', error);
+      }
+      alert(`Failed to add note: ${error.message}`);
     }
   };
 

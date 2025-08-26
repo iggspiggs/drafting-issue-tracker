@@ -8,13 +8,13 @@ export const issueService = {
       .from('issues')
       .select(`
         *,
-        issue_notes (
+        issue_notes!issueid (
           id,
           content,
           author,
           timestamp
         ),
-        issue_reviews (
+        issue_reviews!issueid (
           id,
           reviewername,
           approved,
