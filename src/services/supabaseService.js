@@ -161,17 +161,42 @@ export const issueService = {
 
   // Delete issue
   async delete(id) {
-    console.log('Deleting issue with ID:', id);
-    const { error } = await supabase
+    console.log('Deleting issue with ID:', id, 'Type:', typeof id);
+    
+    // First check if the issue exists
+    const { data: existingIssue, error: fetchError } = await supabase
+      .from('issues')
+      .select('id')
+      .eq('id', id)
+      .single();
+    
+    if (fetchError) {
+      console.error('Issue not found:', fetchError);
+      throw new Error('Issue not found');
+    }
+    
+    console.log('Found issue to delete:', existingIssue);
+    
+    const { data, error, count } = await supabase
       .from('issues')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .select();
     
     if (error) {
       console.error('Delete error:', error);
       throw error;
     }
+    
+    console.log('Delete response:', data, 'Count:', count);
+    
+    if (!data || data.length === 0) {
+      console.warn('No rows were deleted - possible RLS issue');
+      throw new Error('Delete failed - no rows affected');
+    }
+    
     console.log('Issue deleted successfully');
+    return data;
   },
 
   // Bulk delete issues

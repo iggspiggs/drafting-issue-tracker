@@ -349,8 +349,10 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
   const confirmDelete = async () => {
     if (issueToDelete) {
       try {
+        console.log('Attempting to delete issue:', issueToDelete);
         // Delete issue from Supabase
         await issueService.delete(issueToDelete.id);
+        console.log('Delete successful, updating local state');
         
         // Remove issue from local state
         setIssues(prevIssues => prevIssues.filter(issue => issue.id !== issueToDelete.id));
@@ -359,10 +361,8 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
         setShowIssueModal(false);
         setSelectedIssue(null);
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error deleting issue:', error);
-        }
-        alert('Failed to delete issue. Please try again.');
+        console.error('Error deleting issue - full error:', error);
+        alert(`Failed to delete issue: ${error.message}`);
       }
     }
   };
