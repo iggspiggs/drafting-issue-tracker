@@ -161,8 +161,6 @@ export const issueService = {
 
   // Delete issue
   async delete(id) {
-    console.log('Deleting issue with ID:', id, 'Type:', typeof id);
-    
     // First check if the issue exists
     const { data: existingIssue, error: fetchError } = await supabase
       .from('issues')
@@ -171,11 +169,8 @@ export const issueService = {
       .single();
     
     if (fetchError) {
-      console.error('Issue not found:', fetchError);
       throw new Error('Issue not found');
     }
-    
-    console.log('Found issue to delete:', existingIssue);
     
     const { data, error, count } = await supabase
       .from('issues')
@@ -188,20 +183,15 @@ export const issueService = {
       throw error;
     }
     
-    console.log('Delete response:', data, 'Count:', count);
-    
     if (!data || data.length === 0) {
-      console.warn('No rows were deleted - possible RLS issue');
       throw new Error('Delete failed - no rows affected');
     }
     
-    console.log('Issue deleted successfully');
     return data;
   },
 
   // Bulk delete issues
   async bulkDelete(ids) {
-    console.log('Bulk deleting issues with IDs:', ids);
     const { data, error } = await supabase
       .from('issues')
       .delete()
@@ -213,18 +203,14 @@ export const issueService = {
       throw error;
     }
     
-    console.log('Bulk delete response:', data);
     if (!data || data.length !== ids.length) {
       console.warn(`Expected to delete ${ids.length} issues, but deleted ${data?.length || 0}`);
     }
-    
-    console.log('Bulk delete successful');
     return data;
   },
 
   // Bulk update status
   async bulkUpdateStatus(ids, newStatus) {
-    console.log('Bulk updating status for IDs:', ids);
     const { error } = await supabase
       .from('issues')
       .update({ 
@@ -237,7 +223,6 @@ export const issueService = {
       console.error('Bulk update error:', error);
       throw error;
     }
-    console.log('Bulk status update successful');
   },
 
   // Add note to issue

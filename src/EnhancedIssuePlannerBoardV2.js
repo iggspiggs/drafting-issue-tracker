@@ -258,7 +258,9 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
     
     // Subscribe to real-time changes
     const subscription = issueService.subscribeToChanges((payload) => {
-      console.log('Real-time update:', payload);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Real-time update:', payload);
+      }
       if (payload.eventType === 'DELETE') {
         setIssues(prev => prev.filter(issue => issue.id !== payload.old.id));
       } else if (payload.eventType === 'INSERT') {
@@ -349,10 +351,8 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
   const confirmDelete = async () => {
     if (issueToDelete) {
       try {
-        console.log('Attempting to delete issue:', issueToDelete);
         // Delete issue from Supabase
         await issueService.delete(issueToDelete.id);
-        console.log('Delete successful, updating local state');
         
         // Remove issue from local state
         setIssues(prevIssues => prevIssues.filter(issue => issue.id !== issueToDelete.id));
@@ -361,7 +361,9 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
         setShowIssueModal(false);
         setSelectedIssue(null);
       } catch (error) {
-        console.error('Error deleting issue - full error:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error deleting issue:', error);
+        }
         alert(`Failed to delete issue: ${error.message}`);
       }
     }
@@ -384,10 +386,8 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
 
   const bulkUpdateStatus = async (newStatus) => {
     try {
-      console.log('Bulk updating status for issues:', selectedIssues, 'to:', newStatus);
       // Update issues in Supabase
       await issueService.bulkUpdateStatus(selectedIssues, newStatus);
-      console.log('Bulk update successful');
       
       // Update issues in local state
       setIssues(prevIssues =>
@@ -408,10 +408,8 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
   const bulkDelete = async () => {
     if (window.confirm(`Delete ${selectedIssues.length} selected issues?`)) {
       try {
-        console.log('Bulk deleting issues:', selectedIssues);
         // Delete issues from Supabase
         await issueService.bulkDelete(selectedIssues);
-        console.log('Bulk delete successful');
         
         // Remove issues from local state
         setIssues(prevIssues =>
