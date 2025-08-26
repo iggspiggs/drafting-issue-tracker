@@ -161,12 +161,17 @@ export const issueService = {
 
   // Delete issue
   async delete(id) {
+    console.log('Deleting issue with ID:', id);
     const { error } = await supabase
       .from('issues')
       .delete()
       .eq('id', id);
     
-    if (error) throw error;
+    if (error) {
+      console.error('Delete error:', error);
+      throw error;
+    }
+    console.log('Issue deleted successfully');
   },
 
   // Bulk delete issues

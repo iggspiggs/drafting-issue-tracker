@@ -94,8 +94,13 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
     return () => document.removeEventListener('keydown', handleEscKey);
   }, []);
 
-  // Load data from Supabase on mount
+  // Load data from Supabase on mount and when user changes
   useEffect(() => {
+    if (!user) {
+      setIssues([]);  // Clear issues if no user
+      return;
+    }
+    
     const loadIssues = async () => {
       try {
         const data = await issueService.getAll();
@@ -250,7 +255,23 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
     };
     
     loadIssues();
-  }, []);
+    
+    // Subscribe to real-time changes
+    const subscription = issueService.subscribeToChanges((payload) => {
+      console.log('Real-time update:', payload);
+      if (payload.eventType === 'DELETE') {
+        setIssues(prev => prev.filter(issue => issue.id !== payload.old.id));
+      } else if (payload.eventType === 'INSERT') {
+        loadIssues();  // Reload to get the complete issue with relations
+      } else if (payload.eventType === 'UPDATE') {
+        loadIssues();  // Reload to get the updated issue
+      }
+    });
+    
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [user]);  // Reload when user changes
 
   // Enhanced email parsing with preview
   const handleParseEmail = () => {
