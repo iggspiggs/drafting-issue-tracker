@@ -504,7 +504,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
     try {
       const noteData = {
         content: newNoteContent.trim(),
-        author: user?.email || 'Unknown User'  // Use actual user email
+        author: user?.email?.split('@')[0] || 'Unknown User'  // Use username part before @
       };
 
       // Add note to Supabase
