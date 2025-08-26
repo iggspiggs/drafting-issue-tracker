@@ -118,31 +118,31 @@ CREATE TABLE issue_status_history (
 );
 
 -- Create indexes for better performance (with corrected field names)
-CREATE INDEX idx_issues_displayId ON issues(displayId);
-CREATE INDEX idx_issues_jobNumber ON issues(jobNumber);           -- FIXED: was job_number
+CREATE INDEX idx_issues_displayId ON issues(displayid);
+CREATE INDEX idx_issues_jobNumber ON issues(jobnumber);
 CREATE INDEX idx_issues_status ON issues(status);
 CREATE INDEX idx_issues_squad ON issues(squad);
 CREATE INDEX idx_issues_category ON issues(category);
-CREATE INDEX idx_issues_createdBy ON issues(createdBy);           -- FIXED: was created_by
-CREATE INDEX idx_issues_dateReported ON issues(dateReported);     -- FIXED: was date_reported
+CREATE INDEX idx_issues_createdBy ON issues(createdby);
+CREATE INDEX idx_issues_dateReported ON issues(datereported);
 
 -- Notes indexes (with corrected field names)
-CREATE INDEX idx_issue_notes_issueId ON issue_notes(issueId);     -- FIXED: was issue_id
+CREATE INDEX idx_issue_notes_issueId ON issue_notes(issueid);
 CREATE INDEX idx_issue_notes_timestamp ON issue_notes(timestamp);
 
 -- Review indexes (with corrected field names)  
-CREATE INDEX idx_issue_reviews_issueId ON issue_reviews(issueId); -- FIXED: was issue_id
-CREATE INDEX idx_issue_reviews_date ON issue_reviews(reviewDate); -- FIXED: was review_date
+CREATE INDEX idx_issue_reviews_issueId ON issue_reviews(issueid);
+CREATE INDEX idx_issue_reviews_date ON issue_reviews(reviewdate);
 
 -- Status history indexes (with corrected field names)
-CREATE INDEX idx_status_history_issueId ON issue_status_history(issueId);     -- FIXED: was issue_id
-CREATE INDEX idx_status_history_date ON issue_status_history(changeDate);     -- FIXED: was change_date
+CREATE INDEX idx_status_history_issueId ON issue_status_history(issueid);
+CREATE INDEX idx_status_history_date ON issue_status_history(changedate);
 
 -- Create updatedAt trigger function (with corrected field names)
 CREATE OR REPLACE FUNCTION update_updatedAt_column()  -- FIXED: was update_updated_at_column
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updatedAt = NOW();  -- FIXED: was updated_at
+    NEW.updatedat = NOW();  -- Use lowercase field name
     RETURN NEW;
 END;
 $$ language 'plpgsql';
@@ -159,11 +159,11 @@ RETURNS TRIGGER AS $$
 BEGIN
     -- Only insert if status actually changed
     IF OLD.status IS DISTINCT FROM NEW.status THEN
-        INSERT INTO issue_status_history (issueId, oldStatus, newStatus, changedBy, notes)  -- FIXED: all field names
-        VALUES (NEW.id, OLD.status, NEW.status, NEW.uploadedBy, 'Status changed automatically');  -- FIXED: uploadedBy
+        INSERT INTO issue_status_history (issueid, oldstatus, newstatus, changedby, notes, createdby)
+        VALUES (NEW.id, OLD.status, NEW.status, NEW.uploadedby, 'Status changed automatically', NEW.createdby);
         
-        -- Update lastStatusChange timestamp (FIXED: was last_status_change)
-        NEW.lastStatusChange = NOW();
+        -- Update lastStatusChange timestamp
+        NEW.laststatuschange = NOW();
     END IF;
     RETURN NEW;
 END;
