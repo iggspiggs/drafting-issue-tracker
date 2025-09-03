@@ -171,7 +171,7 @@ BEGIN
     -- Only insert if status actually changed
     IF OLD.status IS DISTINCT FROM NEW.status THEN
         INSERT INTO issue_status_history (issueid, oldstatus, newstatus, changedby, notes, createdby)
-        VALUES (NEW.id, OLD.status, NEW.status, NEW.uploadedby, 'Status changed automatically', NEW.createdby);
+        VALUES (NEW.id, OLD.status, NEW.status, NEW.uploadedby, 'Status changed automatically', auth.uid());
         
         -- Update lastStatusChange timestamp
         NEW.laststatuschange = NOW();
