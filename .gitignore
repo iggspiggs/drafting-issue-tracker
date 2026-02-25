@@ -36,3 +36,7 @@ yarn-error.log*
 # OS files
 Thumbs.db
 desktop.ini
+
+# Windows copy artifacts
+*- Copy*
+* - Copy*
