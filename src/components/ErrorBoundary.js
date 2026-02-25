@@ -42,7 +42,7 @@ class ErrorBoundary extends React.Component {
               <div style={{ fontSize: '12px', fontFamily: 'monospace', marginTop: '10px' }}>
                 <strong>Error:</strong> {this.state.error && this.state.error.toString()}
                 <br />
-                <strong>Stack Trace:</strong> {this.state.errorInfo.componentStack}
+                <strong>Stack Trace:</strong> {this.state.errorInfo?.componentStack}
               </div>
             </details>
           )}

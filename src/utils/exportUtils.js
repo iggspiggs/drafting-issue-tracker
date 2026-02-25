@@ -42,6 +42,7 @@ export const exportToCSV = (issues) => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
 
 export const exportToJSON = (issues) => {
@@ -49,18 +50,32 @@ export const exportToJSON = (issues) => {
   const blob = new Blob([dataStr], { type: 'application/json' });
   const link = document.createElement('a');
   const url = URL.createObjectURL(blob);
-  
+
   link.setAttribute('href', url);
   link.setAttribute('download', `issues_export_${new Date().toISOString().split('T')[0]}.json`);
   link.style.visibility = 'hidden';
-  
+
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
+const escapeHtml = (str) => {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 };
 
 export const printIssues = (issues) => {
   const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    alert('Pop-up blocked. Please allow pop-ups for this site to print reports.');
+    return;
+  }
   const groupedByStatus = issues.reduce((acc, issue) => {
     if (!acc[issue.status]) acc[issue.status] = [];
     acc[issue.status].push(issue);
@@ -109,13 +124,13 @@ export const printIssues = (issues) => {
           <tbody>
             ${statusIssues.map(issue => `
               <tr>
-                <td>${issue.id}</td>
-                <td>${issue.jobNumber}</td>
-                <td>${issue.category}</td>
-                <td>${issue.description}</td>
-                <td class="priority-${issue.priority}">${issue.priority}</td>
-                <td>${issue.assignee}</td>
-                <td>${issue.dateReported}</td>
+                <td>${escapeHtml(issue.id)}</td>
+                <td>${escapeHtml(issue.jobNumber)}</td>
+                <td>${escapeHtml(issue.category)}</td>
+                <td>${escapeHtml(issue.description)}</td>
+                <td class="priority-${escapeHtml(issue.priority)}">${escapeHtml(issue.priority)}</td>
+                <td>${escapeHtml(issue.assignee)}</td>
+                <td>${escapeHtml(issue.dateReported)}</td>
               </tr>
             `).join('')}
           </tbody>

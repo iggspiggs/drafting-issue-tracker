@@ -32,7 +32,7 @@ const LoadingSpinner = ({ size = 'medium', message = 'Loading...' }) => {
     <div style={containerStyle}>
       <div style={spinnerStyle}></div>
       {message && <span style={{ color: '#666', fontSize: '14px' }}>{message}</span>}
-      <style jsx>{`
+      <style>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }

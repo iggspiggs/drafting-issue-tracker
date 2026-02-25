@@ -113,147 +113,6 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
       }
     };
     
-    const loadSampleData = () => {
-      // Initialize with sample data for testing
-      const sampleIssues = [
-        {
-          id: 'DIT-2024-001',
-          description: 'Beam dimensions incorrect on plan view - column B3 shows 18" depth but should be 21" per structural calculations',
-          jobNumber: '113980',
-          squad: 'Cadeploy (Tekla)',
-          category: 'Erection Drawings',
-          status: 'New',
-          uploadedBy: 'Sarah Wilson',
-          dateReported: '2024-01-15',
-          resolutionDate: null,
-          reviewHistory: [],
-          notes: [
-            {
-              id: 1,
-              content: 'Initial review by structural team - dimensions need correction',
-              timestamp: '2024-01-15T10:35:00Z',
-              author: 'Mike Johnson'
-            }
-          ],
-          lastStatusChange: '2024-01-15T10:30:00Z'
-        },
-        {
-          id: 'DIT-2024-002',
-          description: 'Missing bolt specifications for connection detail at grid line 5 - need grade and size callouts. Currently reviewing structural specs for correct bolt grade.',
-          jobNumber: '113980',
-          squad: 'Crystal Engineering',
-          category: 'Shop Drawings',
-          status: 'In Progress',
-          uploadedBy: 'Mike Johnson',
-          dateReported: '2024-01-16',
-          resolutionDate: null,
-          reviewHistory: [],
-          notes: [
-            {
-              id: 1,
-              content: 'Checking with vendor for bolt specifications',
-              timestamp: '2024-01-16T14:25:00Z',
-              author: 'Mike Johnson'
-            }
-          ],
-          lastStatusChange: '2024-01-16T14:20:00Z'
-        },
-        {
-          id: 'DIT-2024-003',
-          description: 'Shipment quantity mismatch - Drawing shows 12 pieces but BOM lists 14 pieces for angle brackets. Updated BOM to reflect correct quantity of 12 pieces. Drawing is accurate.',
-          jobNumber: '114520',
-          squad: 'Rohan Engineering',
-          category: 'Shipper',
-          status: 'Under Review',
-          uploadedBy: 'David Chen',
-          dateReported: '2024-01-17',
-          resolutionDate: null,
-          reviewHistory: [],
-          lastStatusChange: '2024-01-18T09:15:00Z'
-        },
-        {
-          id: 'DIT-2024-004',
-          description: 'Weld symbol missing on connection plate - need to specify fillet weld size and type. RESOLUTION: Added 3/16" fillet weld symbol all around connection plate per AWS D1.1.',
-          jobNumber: '113980',
-          squad: 'Precision Engineering',
-          category: 'Erection Drawings',
-          status: 'Fixed',
-          uploadedBy: 'Sarah Wilson',
-          dateReported: '2024-01-12',
-          resolutionDate: '2024-01-14',
-          reviewHistory: [
-            {
-              reviewerName: 'Quality Team',
-              approved: true,
-              notes: 'Weld symbol correctly applied, matches structural requirements',
-              date: '2024-01-14',
-              time: '3:45 PM',
-              iteration: 1
-            }
-          ],
-          lastStatusChange: '2024-01-14T15:45:00Z'
-        },
-        {
-          id: 'DIT-2024-005',
-          description: 'Elevation view conflicts with plan view - beam elevation shows 45\'-6" but plan shows 45\'-8". Corrected elevation to 45\'-6" per field measurements.',
-          jobNumber: '114520',
-          squad: 'Basuraj',
-          category: 'Shop Drawings',
-          status: 'Needs Rework',
-          uploadedBy: 'Mike Johnson',
-          dateReported: '2024-01-10',
-          resolutionDate: null,
-          reviewHistory: [
-            {
-              reviewerName: 'Quality Team',
-              approved: false,
-              notes: 'Need to verify with field survey data before finalizing',
-              date: '2024-01-13',
-              time: '11:20 AM',
-              iteration: 1
-            }
-          ],
-          lastStatusChange: '2024-01-13T11:20:00Z'
-        },
-        {
-          id: 'DIT-2024-006',
-          description: 'Material specification unclear - need to clarify if HSS is A500 Grade B or Grade C. Client confirmed existing specification is correct per project requirements. No change needed.',
-          jobNumber: '115100',
-          squad: 'Manohar',
-          category: 'Erection Drawings',
-          status: 'Cannot Change',
-          uploadedBy: 'David Chen',
-          dateReported: '2024-01-18',
-          resolutionDate: null,
-          reviewHistory: [],
-          lastStatusChange: '2024-01-19T16:30:00Z'
-        },
-        {
-          id: 'DIT-2024-007',
-          description: 'Connection detail dimensions incorrect on sheet 5 - beam-to-column connection shows 6" but should be 8" per structural drawings. RESOLUTION: Updated connection detail to reflect correct 8" dimension and verified with structural engineer.',
-          jobNumber: '114520',
-          squad: 'Jerry Dubose',
-          category: 'Shop Drawings',
-          status: 'Fixed',
-          uploadedBy: 'Alex Martinez',
-          dateReported: '2024-01-08',
-          resolutionDate: '2024-01-12',
-          reviewHistory: [
-            {
-              reviewerName: 'Quality Team',
-              approved: true,
-              notes: 'Connection detail updated correctly, approved for final release',
-              date: '2024-01-12',
-              time: '4:15 PM',
-              iteration: 1
-            }
-          ],
-          lastStatusChange: '2024-01-12T16:15:00Z'
-        }
-      ];
-      setIssues(sampleIssues);
-    };
-    
     loadIssues();
     
     // Subscribe to real-time changes
@@ -458,12 +317,12 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
   };
 
   // Review functionality
-  const submitReview = (approved, notes) => {
+  const submitReview = async (approved, notes) => {
     if (!reviewingIssue) return;
 
     try {
       const reviewEntry = {
-        reviewerName: 'Quality Team',
+        reviewerName: user?.email?.split('@')[0] || 'Quality Team',
         approved: approved,
         notes: notes,
         date: new Date().toISOString().split('T')[0],
@@ -472,16 +331,33 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
       };
 
       const newStatus = approved ? 'Fixed' : 'Needs Rework';
-      
+
+      // Persist review to Supabase
+      const savedReview = await issueService.addReview(reviewingIssue.id, reviewEntry);
+
+      // Persist status change to Supabase
+      await issueService.update(reviewingIssue.id, {
+        status: newStatus,
+        resolutionDate: approved ? new Date().toISOString().split('T')[0] : null,
+        lastStatusChange: new Date().toISOString()
+      });
+
       const updatedIssue = {
         ...reviewingIssue,
         status: newStatus,
         resolutionDate: approved ? new Date().toISOString().split('T')[0] : null,
         lastStatusChange: new Date().toISOString(),
-        reviewHistory: [...(reviewingIssue.reviewHistory || []), reviewEntry]
+        reviewHistory: [...(reviewingIssue.reviewHistory || []), {
+          id: savedReview.id,
+          reviewerName: savedReview.reviewername,
+          approved: savedReview.approved,
+          notes: savedReview.notes,
+          date: savedReview.reviewdate,
+          iteration: savedReview.iterationnumber
+        }]
       };
 
-      // Update local state (localStorage auto-save will handle persistence)
+      // Update local state
       setIssues(prevIssues =>
         prevIssues.map(issue =>
           issue.id === reviewingIssue.id ? updatedIssue : issue
@@ -595,18 +471,6 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
     return getFilteredIssues().filter(issue => issue.status === bucketStatus);
   };
 
-  // Statistics
-  const getStatistics = () => {
-    const total = issues.length;
-    const byStatus = buckets.reduce((acc, bucket) => {
-      acc[bucket.status] = issues.filter(i => i.status === bucket.status).length;
-      return acc;
-    }, {});
-    return { total, byStatus };
-  };
-
-  const stats = getStatistics();
-
   // Utility functions
 
   const getCategoryIcon = (category) => {
@@ -642,21 +506,6 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
       days.push(new Date(year, month, i));
     }
     
-    return days;
-  };
-
-  const getWeekDays = (date) => {
-    const startOfWeek = new Date(date);
-    const day = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - day;
-    startOfWeek.setDate(diff);
-    
-    const days = [];
-    for (let i = 0; i < 7; i++) {
-      const day = new Date(startOfWeek);
-      day.setDate(startOfWeek.getDate() + i);
-      days.push(day);
-    }
     return days;
   };
 
@@ -1868,7 +1717,7 @@ const EnhancedIssuePlannerBoardV2 = ({ user }) => {
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       value={newNoteContent}
                       onChange={(e) => setNewNoteContent(e.target.value)}
-                      onKeyPress={(e) => {
+                      onKeyDown={(e) => {
                         if (e.key === 'Enter' && newNoteContent.trim()) {
                           addNote();
                         }
